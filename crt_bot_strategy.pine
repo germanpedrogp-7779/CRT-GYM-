@@ -79,7 +79,10 @@ friday_close    = input.bool(true, "Auto-Close Friday 15:00 UTC-4", group=gp_tim
 var float ref_high = na
 var float ref_low = na
 
-// Variable global para session range
+// Session range tracking (persistent across bars)
+var float s_high = na
+var float s_low  = na
+var bool s_active = false
 var bool in_sess = false
 
 // Method 1: Previous Bar
@@ -97,10 +100,6 @@ else if ref_source == "HTF Bar"
 else if ref_source == "Session Range"
     // Check if current bar is inside the session time
     in_sess := not na(time(timeframe.period, session_time, session_tz))
-    
-    var float s_high = na
-    var float s_low  = na
-    var bool s_active = false
     
     if in_sess
         if not s_active
@@ -124,8 +123,8 @@ else if ref_source == "Session Range"
 // ==========================================
 
 // Sweep Detection: Checking if price has grabbed liquidity outside the reference range and rejected
-bool bullish_sweep = false
-bool bearish_sweep = false
+bullish_sweep = false
+bearish_sweep = false
 
 if not na(ref_high) and not na(ref_low)
     // Bullish Sweep (Turtle Soup): Low drops below reference low, but closes back above reference low
@@ -174,8 +173,8 @@ if sweep_active_short
         sweep_trigger_low  := na
 
 // Final Signal Conditions
-bool long_signal  = false
-bool short_signal = false
+long_signal  = false
+short_signal = false
 
 if entry_type == "Close Rejection"
     long_signal  := bullish_sweep
@@ -200,8 +199,8 @@ else if entry_type == "Structure Break"
 // Average True Range (ATR)
 atr_val = ta.atr(atr_len)
 
-float calc_sl_long  = na
-float calc_sl_short = na
+calc_sl_long  = na
+calc_sl_short = na
 
 if sl_type == "Sweep Extreme"
     // SL below the lowest point (sweep low or reference low) minus buffer
@@ -231,7 +230,7 @@ is_sun    = dayofweek(time, "GMT-4") == dayofweek.sunday
 is_friday_auto_close_time = is_friday and (hour(time, "GMT-4") > 15 or (hour(time, "GMT-4") == 15 and minute(time, "GMT-4") >= 0))
 
 // Only allow opening positions outside of Friday afternoon and the weekend
-bool is_trading_allowed = not is_friday_auto_close_time and not is_sat and not is_sun
+is_trading_allowed = not is_friday_auto_close_time and not is_sat and not is_sun
 
 
 // ==========================================
@@ -327,7 +326,7 @@ if strategy.position_size != 0
         trade_tp1_hit := true
         
     // Dynamic Stop Loss Adjustments
-    float current_sl_price = trade_sl_price
+    current_sl_price = trade_sl_price
     
     // Move to Breakeven after TP1 is hit
     if trade_tp1_hit and enable_be
@@ -336,14 +335,14 @@ if strategy.position_size != 0
     // Trailing Stop Loss Mechanism
     if enable_trail
         // Trailing activates after hitting trailing target R:R
-        bool trail_active = false
+        trail_active = false
         if in_long and high >= trade_entry_price + (trade_risk_dist * trail_act)
             trail_active := true
         if in_short and low <= trade_entry_price - (trade_risk_dist * trail_act)
             trail_active := true
             
         if trail_active
-            float trail_sl = na
+            trail_sl = na
             if in_long
                 trail_sl := high - (trail_dist * atr_val)
                 current_sl_price := math.max(current_sl_price, trail_sl)
@@ -352,13 +351,13 @@ if strategy.position_size != 0
                 current_sl_price := math.min(current_sl_price, trail_sl)
                 
     // Split total order quantity into configured partial take profits
-    float total_qty = math.abs(strategy.position_size)
+    total_qty = math.abs(strategy.position_size)
     
     // Normalize allocations to sum to 100%
-    float sum_allocations = tp1_a + tp2_a + tp3_a
-    float exit_qty1 = total_qty * (tp1_a / (sum_allocations > 0 ? sum_allocations : 100.0))
-    float exit_qty2 = total_qty * (tp2_a / (sum_allocations > 0 ? sum_allocations : 100.0))
-    float exit_qty3 = total_qty * (tp3_a / (sum_allocations > 0 ? sum_allocations : 100.0))
+    sum_allocations = tp1_a + tp2_a + tp3_a
+    exit_qty1 = total_qty * (tp1_a / (sum_allocations > 0 ? sum_allocations : 100.0))
+    exit_qty2 = total_qty * (tp2_a / (sum_allocations > 0 ? sum_allocations : 100.0))
+    exit_qty3 = total_qty * (tp3_a / (sum_allocations > 0 ? sum_allocations : 100.0))
     
     // Place separate exit orders for each portion of the trade sharing the same dynamic SL
     if in_long
@@ -435,7 +434,7 @@ else
         tp3_ln   := na
 
 // On-Screen Dashboard / Panel Informativo
-var table info_pnl = table.new(position.top_right, 2, 8, bgcolor=color.new(color.black, 30), border_color=color.gray, border_width=1)
+var info_pnl = table.new(position.top_right, 2, 8, bgcolor=color.new(color.black, 30), border_color=color.gray, border_width=1)
 if barstate.islast
     table.cell(info_pnl, 0, 0, "CRT Bot Dashboard", text_color=color.white, bgcolor=color.navy, text_size=size.small)
     table.cell(info_pnl, 1, 0, strategy.position_size != 0 ? "ACTIVE / ACTIVO" : "IDLE / ESPERA", text_color=color.white, bgcolor=strategy.position_size != 0 ? color.green : color.orange, text_size=size.small)
@@ -460,16 +459,16 @@ if barstate.islast
 // =====================================================================================
 
 // Classic Alert Conditions for custom triggers on TradingView's platform
-alertcondition(long_signal, title="CRT Long Entry Alert (BUY)", message="[CRT Bot Webhook] BUY Signal on ticker {{ticker}} at price {{close}}. SL: {{plot_0}}, TP1: {{plot_1}}")
-alertcondition(short_signal, title="CRT Short Entry Alert (SELL)", message="[CRT Bot Webhook] SELL Signal on ticker {{ticker}} at price {{close}}. SL: {{plot_2}}, TP1: {{plot_1}}")
+alertcondition(long_signal, title="CRT Long Entry Alert (BUY)", message="[CRT Bot Webhook] BUY Signal on ticker {{ticker}} at price {{close}}")
+alertcondition(short_signal, title="CRT Short Entry Alert (SELL)", message="[CRT Bot Webhook] SELL Signal on ticker {{ticker}} at price {{close}}")
 
 // Exits & Event triggers
-bool hit_tp1_long  = in_long and not trade_tp1_hit and high >= trade_tp1_price
-bool hit_tp1_short = in_short and not trade_tp1_hit and low <= trade_tp1_price
+hit_tp1_long  = in_long and not trade_tp1_hit and high >= trade_tp1_price
+hit_tp1_short = in_short and not trade_tp1_hit and low <= trade_tp1_price
 alertcondition(hit_tp1_long or hit_tp1_short, title="CRT Partial Take Profit (TP1) Hit Alert", message="[CRT Bot Webhook] Partial exit target TP1 hit on ticker {{ticker}}.")
 
-bool hit_sl_long   = in_long and low <= trade_sl_price
-bool hit_sl_short  = in_short and high >= trade_sl_price
+hit_sl_long   = in_long and low <= trade_sl_price
+hit_sl_short  = in_short and high >= trade_sl_price
 alertcondition(hit_sl_long or hit_sl_short, title="CRT Stop Loss (SL) Hit Alert", message="[CRT Bot Webhook] Stop Loss hit on ticker {{ticker}}.")
 
 alertcondition(is_friday_auto_close_time and strategy.position_size != 0, title="CRT Friday Auto-Close Trigger Alert", message="[CRT Bot Webhook] Friday afternoon market auto-close executed on {{ticker}}.")
