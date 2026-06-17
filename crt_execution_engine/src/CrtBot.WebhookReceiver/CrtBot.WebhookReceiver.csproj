@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CrtBot.Core\CrtBot.Core.csproj" />
+    <ProjectReference Include="..\CrtBot.Broker\CrtBot.Broker.csproj" />
+    <ProjectReference Include="..\CrtBot.RiskManager\CrtBot.RiskManager.csproj" />
+    <ProjectReference Include="..\CrtBot.Scheduler\CrtBot.Scheduler.csproj" />
+    <ProjectReference Include="..\CrtBot.TradeLogger\CrtBot.TradeLogger.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

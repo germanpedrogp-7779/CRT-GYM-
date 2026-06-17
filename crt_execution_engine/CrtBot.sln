@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5B486AE9-650D-4328-BE1C-D61F90B18E32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrtBot.Core", "src\CrtBot.Core\CrtBot.Core.csproj", "{08913FAB-3394-471F-A44D-00556ABE3FC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrtBot.Broker", "src\CrtBot.Broker\CrtBot.Broker.csproj", "{D05724CA-F597-40A8-AC44-4705DC2A3DC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrtBot.RiskManager", "src\CrtBot.RiskManager\CrtBot.RiskManager.csproj", "{91360622-AACA-4FD4-A615-648C46802EA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrtBot.Scheduler", "src\CrtBot.Scheduler\CrtBot.Scheduler.csproj", "{0B05251C-B1A4-4FE9-9BF3-39B80B69A49F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrtBot.TradeLogger", "src\CrtBot.TradeLogger\CrtBot.TradeLogger.csproj", "{890FB2AB-C298-4373-83B7-320890A00C4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrtBot.WebhookReceiver", "src\CrtBot.WebhookReceiver\CrtBot.WebhookReceiver.csproj", "{4047FB99-9329-4266-88CE-B68FAC7373A3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08913FAB-3394-471F-A44D-00556ABE3FC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08913FAB-3394-471F-A44D-00556ABE3FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08913FAB-3394-471F-A44D-00556ABE3FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08913FAB-3394-471F-A44D-00556ABE3FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D05724CA-F597-40A8-AC44-4705DC2A3DC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D05724CA-F597-40A8-AC44-4705DC2A3DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D05724CA-F597-40A8-AC44-4705DC2A3DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D05724CA-F597-40A8-AC44-4705DC2A3DC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91360622-AACA-4FD4-A615-648C46802EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91360622-AACA-4FD4-A615-648C46802EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91360622-AACA-4FD4-A615-648C46802EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91360622-AACA-4FD4-A615-648C46802EA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B05251C-B1A4-4FE9-9BF3-39B80B69A49F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B05251C-B1A4-4FE9-9BF3-39B80B69A49F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B05251C-B1A4-4FE9-9BF3-39B80B69A49F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B05251C-B1A4-4FE9-9BF3-39B80B69A49F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{890FB2AB-C298-4373-83B7-320890A00C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{890FB2AB-C298-4373-83B7-320890A00C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{890FB2AB-C298-4373-83B7-320890A00C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{890FB2AB-C298-4373-83B7-320890A00C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4047FB99-9329-4266-88CE-B68FAC7373A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4047FB99-9329-4266-88CE-B68FAC7373A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4047FB99-9329-4266-88CE-B68FAC7373A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4047FB99-9329-4266-88CE-B68FAC7373A3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{08913FAB-3394-471F-A44D-00556ABE3FC2} = {5B486AE9-650D-4328-BE1C-D61F90B18E32}
+		{D05724CA-F597-40A8-AC44-4705DC2A3DC6} = {5B486AE9-650D-4328-BE1C-D61F90B18E32}
+		{91360622-AACA-4FD4-A615-648C46802EA0} = {5B486AE9-650D-4328-BE1C-D61F90B18E32}
+		{0B05251C-B1A4-4FE9-9BF3-39B80B69A49F} = {5B486AE9-650D-4328-BE1C-D61F90B18E32}
+		{890FB2AB-C298-4373-83B7-320890A00C4F} = {5B486AE9-650D-4328-BE1C-D61F90B18E32}
+		{4047FB99-9329-4266-88CE-B68FAC7373A3} = {5B486AE9-650D-4328-BE1C-D61F90B18E32}
+	EndGlobalSection
+EndGlobal
