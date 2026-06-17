@@ -79,6 +79,9 @@ friday_close    = input.bool(true, "Auto-Close Friday 15:00 UTC-4", group=gp_tim
 var float ref_high = na
 var float ref_low = na
 
+// Variable global para session range
+var bool in_sess = false
+
 // Method 1: Previous Bar
 if ref_source == "Previous Bar"
     ref_high := high[1]
@@ -93,7 +96,7 @@ else if ref_source == "HTF Bar"
 // Method 3: Session Range (e.g. Asian Session)
 else if ref_source == "Session Range"
     // Check if current bar is inside the session time
-    in_sess = not na(time(timeframe.period, session_time, session_tz))
+    in_sess := not na(time(timeframe.period, session_time, session_tz))
     
     var float s_high = na
     var float s_low  = na
@@ -242,6 +245,7 @@ var float trade_tp1_price   = na
 var float trade_tp2_price   = na
 var float trade_tp3_price   = na
 var bool  trade_tp1_hit     = false
+var float trade_risk_dist   = na
 
 in_long  = strategy.position_size > 0
 in_short = strategy.position_size < 0
@@ -254,6 +258,7 @@ if strategy.position_size == 0
     trade_tp2_price   := na
     trade_tp3_price   := na
     trade_tp1_hit     := false
+    trade_risk_dist   := na
 
 // Trade Entry Execution
 if is_trading_allowed and strategy.position_size == 0
@@ -262,26 +267,25 @@ if is_trading_allowed and strategy.position_size == 0
         trade_sl_price    := calc_sl_long
         
         // Calculate Target Prices based on risk-reward multipliers
-        risk_dist         := trade_entry_price - trade_sl_price
-        trade_tp1_price   := trade_entry_price + (risk_dist * tp1_r)
-        trade_tp2_price   := trade_entry_price + (risk_dist * tp2_r)
-        trade_tp3_price   := trade_entry_price + (risk_dist * tp3_r)
+        trade_risk_dist   := trade_entry_price - trade_sl_price
+        trade_tp1_price   := trade_entry_price + (trade_risk_dist * tp1_r)
+        trade_tp2_price   := trade_entry_price + (trade_risk_dist * tp2_r)
+        trade_tp3_price   := trade_entry_price + (trade_risk_dist * tp3_r)
         trade_tp1_hit     := false
         
         // Dynamic Sizing based on risk percentage of equity
         cash_risk         = strategy.equity * (risk_pct / 100.0)
         float pos_size    = na
-        if risk_dist > 0
-            pos_size := cash_risk / (risk_dist * syminfo.pointvalue)
+        if trade_risk_dist > 0
+            pos_size := cash_risk / (trade_risk_dist * syminfo.pointvalue)
         if not allow_fractional
             pos_size := math.floor(pos_size)
             
         // Place Strategy Entry
         strategy.entry("Long", strategy.long, qty=pos_size)
         
-        // Trigger Webhook Payload
-        alert_payload = str.format('{"ticker": "{0}", "action": "BUY", "price": {1,number,#.#####}, "sl": {2,number,#.#####}, "tp1": {3,number,#.#####}, "tp1_pct": {4}, "tp2": {5,number,#.#####}, "tp2_pct": {6}, "tp3": {7,number,#.#####}, "tp3_pct": {8}}', 
-             syminfo.ticker, trade_entry_price, trade_sl_price, trade_tp1_price, tp1_a, trade_tp2_price, tp2_a, trade_tp3_price, tp3_a)
+        // Trigger Webhook Payload - CORREGIDO
+        alert_payload = '{"ticker": "' + syminfo.ticker + '", "action": "BUY", "price": ' + str.tostring(trade_entry_price, "#.#####") + ', "sl": ' + str.tostring(trade_sl_price, "#.#####") + ', "tp1": ' + str.tostring(trade_tp1_price, "#.#####") + ', "tp1_pct": ' + str.tostring(tp1_a) + ', "tp2": ' + str.tostring(trade_tp2_price, "#.#####") + ', "tp2_pct": ' + str.tostring(tp2_a) + ', "tp3": ' + str.tostring(trade_tp3_price, "#.#####") + ', "tp3_pct": ' + str.tostring(tp3_a) + '}'
         alert(alert_payload, alert.freq_once_per_bar)
         
     else if short_signal
@@ -289,26 +293,25 @@ if is_trading_allowed and strategy.position_size == 0
         trade_sl_price    := calc_sl_short
         
         // Calculate Target Prices based on risk-reward multipliers
-        risk_dist         := trade_sl_price - trade_entry_price
-        trade_tp1_price   := trade_entry_price - (risk_dist * tp1_r)
-        trade_tp2_price   := trade_entry_price - (risk_dist * tp2_r)
-        trade_tp3_price   := trade_entry_price - (risk_dist * tp3_r)
+        trade_risk_dist   := trade_sl_price - trade_entry_price
+        trade_tp1_price   := trade_entry_price - (trade_risk_dist * tp1_r)
+        trade_tp2_price   := trade_entry_price - (trade_risk_dist * tp2_r)
+        trade_tp3_price   := trade_entry_price - (trade_risk_dist * tp3_r)
         trade_tp1_hit     := false
         
         // Dynamic Sizing based on risk percentage of equity
         cash_risk         = strategy.equity * (risk_pct / 100.0)
         float pos_size    = na
-        if risk_dist > 0
-            pos_size := cash_risk / (risk_dist * syminfo.pointvalue)
+        if trade_risk_dist > 0
+            pos_size := cash_risk / (trade_risk_dist * syminfo.pointvalue)
         if not allow_fractional
             pos_size := math.floor(pos_size)
             
         // Place Strategy Entry
         strategy.entry("Short", strategy.short, qty=pos_size)
         
-        // Trigger Webhook Payload
-        alert_payload = str.format('{"ticker": "{0}", "action": "SELL", "price": {1,number,#.#####}, "sl": {2,number,#.#####}, "tp1": {3,number,#.#####}, "tp1_pct": {4}, "tp2": {5,number,#.#####}, "tp2_pct": {6}, "tp3": {7,number,#.#####}, "tp3_pct": {8}}', 
-             syminfo.ticker, trade_entry_price, trade_sl_price, trade_tp1_price, tp1_a, trade_tp2_price, tp2_a, trade_tp3_price, tp3_a)
+        // Trigger Webhook Payload - CORREGIDO
+        alert_payload = '{"ticker": "' + syminfo.ticker + '", "action": "SELL", "price": ' + str.tostring(trade_entry_price, "#.#####") + ', "sl": ' + str.tostring(trade_sl_price, "#.#####") + ', "tp1": ' + str.tostring(trade_tp1_price, "#.#####") + ', "tp1_pct": ' + str.tostring(tp1_a) + ', "tp2": ' + str.tostring(trade_tp2_price, "#.#####") + ', "tp2_pct": ' + str.tostring(tp2_a) + ', "tp3": ' + str.tostring(trade_tp3_price, "#.#####") + ', "tp3_pct": ' + str.tostring(tp3_a) + '}'
         alert(alert_payload, alert.freq_once_per_bar)
 
 
@@ -334,9 +337,9 @@ if strategy.position_size != 0
     if enable_trail
         // Trailing activates after hitting trailing target R:R
         bool trail_active = false
-        if in_long and high >= trade_entry_price + (trade_entry_price - trade_sl_price) * trail_act
+        if in_long and high >= trade_entry_price + (trade_risk_dist * trail_act)
             trail_active := true
-        if in_short and low <= trade_entry_price - (trade_sl_price - trade_entry_price) * trail_act
+        if in_short and low <= trade_entry_price - (trade_risk_dist * trail_act)
             trail_active := true
             
         if trail_active
@@ -384,14 +387,14 @@ plot(ref_high, "CRT Reference High / Techo", color=color.new(color.red, 30), lin
 plot(ref_low, "CRT Reference Low / Suelo", color=color.new(color.green, 30), linewidth=1, style=plot.style_stepline)
 
 // Highlight sweeps and entries
-plotshape(bullish_sweep, "Bullish Sweep / Barrido Alcista", shape.triangleup, location.belowbar, color.new(color.green, 20), size=size.small)
-plotshape(bearish_sweep, "Bearish Sweep / Barrido Bajista", shape.triangledown, location.abovebar, color.new(color.red, 20), size=size.small)
+plotshape(bullish_sweep, "Bullish Sweep / Barrido Alcista", shape.triangleup, location.belowbar, color=color.new(color.green, 20), size=size.small)
+plotshape(bearish_sweep, "Bearish Sweep / Barrido Bajista", shape.triangledown, location.abovebar, color=color.new(color.red, 20), size=size.small)
 
-plotshape(long_signal, "LONG Entry / Compra", shape.labelup, location.belowbar, color.new(color.green, 0), text="LONG / COMPRA", textcolor=color.white, size=size.small)
-plotshape(short_signal, "SHORT Entry / Venta", shape.labeldown, location.abovebar, color.new(color.red, 0), text="SHORT / VENTA", textcolor=color.white, size=size.small)
+plotshape(long_signal, "LONG Entry / Compra", shape.labelup, location.belowbar, color=color.new(color.green, 0), text="LONG / COMPRA", textcolor=color.white, size=size.small)
+plotshape(short_signal, "SHORT Entry / Venta", shape.labeldown, location.abovebar, color=color.new(color.red, 0), text="SHORT / VENTA", textcolor=color.white, size=size.small)
 
 // Background color during active session monitoring
-bgcolor(ref_source == "Session Range" and in_session ? color.new(color.blue, 96) : na, title="Session Active Background")
+bgcolor(ref_source == "Session Range" and in_sess ? color.new(color.blue, 96) : na, title="Session Active Background")
 
 // Draw Dynamic Levels for Active Trade
 var line entry_ln = na
